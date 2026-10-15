@@ -1,0 +1,51 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><title>Event Registration</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; max-width: 500px; margin: 50px auto; padding: 0 20px; background: #f8fafc; color: #1e293b; }
+    .card { background: white; border-radius: 8px; padding: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+    input { width: 100%; box-sizing: border-box; padding: 10px; margin: 8px 0 16px; border: 1px solid #cbd5e1; border-radius: 6px; }
+    .btn { width: 100%; padding: 10px; background: #2563eb; color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h2 id="event-title">Register for Event</h2>
+    <form id="reg-form" onsubmit="submitForm(event)">
+      <label>Full Name</label>
+      <input id="name" required placeholder="John Doe">
+      <label>Email Address</label>
+      <input id="email" type="email" required placeholder="john@example.com">
+      <label>College ID / Roll No</label>
+      <input id="collegeId" required placeholder="CS2026-001">
+      <button class="btn" type="submit">Complete Registration</button>
+    </form>
+  </div>
+  <script>
+    const id = new URLSearchParams(window.location.search).get('id');
+    fetch(`/api/events/${id}`).then(r => r.json()).then(e => {
+      document.getElementById('event-title').innerText = `Register for: ${e.name}`;
+    });
+    async function submitForm(e) {
+      e.preventDefault();
+      const body = {
+        studentName: document.getElementById('name').value,
+        email: document.getElementById('email').value,
+        collegeId: document.getElementById('collegeId').value
+      };
+      const res = await fetch(`/api/events/${id}/registrations`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(body)
+      });
+      if (res.ok) {
+        const data = await res.json();
+        location.href = `/confirmation.html?regId=${data.id}&name=${encodeURIComponent(data.studentName)}`;
+      } else {
+        alert('Registration failed. The event might be full or closed.');
+      }
+    }
+  </script>
+</body>
+</html>

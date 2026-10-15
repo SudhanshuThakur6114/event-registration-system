@@ -1,0 +1,76 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><title>Campus Events</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; max-width: 900px; margin: 40px auto; padding: 0 20px; background: #f8fafc; color: #1e293b; }
+    .card { background: white; border-radius: 8px; padding: 20px; margin-bottom: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+    .btn { display: inline-block; padding: 8px 16px; border-radius: 6px; border: none; cursor: pointer; text-decoration: none; font-weight: 500; font-size: 14px; }
+    .btn-primary { background: #2563eb; color: white; }
+    .btn-outline { border: 1px solid #cbd5e1; color: #334155; }
+    .badge { padding: 4px 8px; border-radius: 9999px; font-size: 12px; font-weight: 600; }
+    .badge-open { background: #dcfce7; color: #166534; }
+    .badge-closed { background: #fee2e2; color: #991b1b; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; }
+    input, textarea { width: 100%; box-sizing: border-box; padding: 8px; margin: 6px 0 14px; border: 1px solid #cbd5e1; border-radius: 6px; }
+  </style>
+</head>
+<body>
+  <div style="display:flex; justify-content:space-between; align-items:center;">
+    <h1>Campus Events</h1>
+    <button class="btn btn-primary" onclick="document.getElementById('new-form').toggleAttribute('hidden')">+ Create Event</button>
+  </div>
+
+  <div id="new-form" class="card" hidden>
+    <h3>New Event</h3>
+    <input id="name" placeholder="Event Name" required>
+    <textarea id="desc" placeholder="Event Description"></textarea>
+    <div style="display:flex; gap:10px;">
+      <input type="date" id="date" required>
+      <input type="time" id="time" required>
+      <input type="number" id="cap" placeholder="Capacity" required>
+    </div>
+    <input id="venue" placeholder="Venue / Room" required>
+    <button class="btn btn-primary" onclick="createEvent()">Save Event</button>
+  </div>
+
+  <div id="events-list" class="grid"></div>
+
+  <script>
+    async function loadEvents() {
+      const res = await fetch('/api/events');
+      const events = await res.json();
+      const list = document.getElementById('events-list');
+      list.innerHTML = events.map(e => `
+        <div class="card">
+          <span class="badge ${e.registrationOpen ? 'badge-open' : 'badge-closed'}">${e.registrationOpen ? 'OPEN' : 'CLOSED'}</span>
+          <h3 style="margin:10px 0 6px;">${e.name}</h3>
+          <p style="color:#64748b; font-size:14px; margin:0 0 12px;">${e.description || ''}</p>
+          <div style="font-size:13px; color:#475569; margin-bottom:14px;">
+            📍 ${e.venue} | 👥 Cap: ${e.capacity}<br>
+            📅 ${e.eventDate || ''} ${e.eventTime || ''}
+          </div>
+          <div style="display:flex; gap:8px;">
+            <a class="btn btn-outline" href="/event.html?id=${e.id}">Details</a>
+            ${e.registrationOpen ? `<a class="btn btn-primary" href="/register.html?id=${e.id}">Register</a>` : ''}
+          </div>
+        </div>
+      `).join('');
+    }
+    async function createEvent() {
+      const body = {
+        name: document.getElementById('name').value,
+        description: document.getElementById('desc').value,
+        eventDate: document.getElementById('date').value,
+        eventTime: document.getElementById('time').value,
+        venue: document.getElementById('venue').value,
+        capacity: parseInt(document.getElementById('cap').value, 10),
+        registrationOpen: true
+      };
+      await fetch('/api/events', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(body) });
+      location.reload();
+    }
+    loadEvents();
+  </script>
+</body>
+</html>

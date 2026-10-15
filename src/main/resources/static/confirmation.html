@@ -1,0 +1,26 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><title>Registration Confirmed</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; max-width: 500px; margin: 80px auto; padding: 0 20px; text-align: center; background: #f8fafc; color: #1e293b; }
+    .card { background: white; border-radius: 8px; padding: 32px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+    .badge { font-size: 40px; margin-bottom: 12px; }
+    .btn { display: inline-block; padding: 10px 20px; background: #2563eb; color: white; text-decoration: none; border-radius: 6px; margin-top: 20px; font-weight: 500; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="badge">✅</div>
+    <h2>Registration Successful!</h2>
+    <p>Thank you, <strong id="student"></strong>.</p>
+    <p>Your Registration ID is: <strong id="regId" style="color:#2563eb;"></strong></p>
+    <a href="/index.html" class="btn">View All Events</a>
+  </div>
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    document.getElementById('student').innerText = params.get('name') || 'Student';
+    document.getElementById('regId').innerText = params.get('regId') || 'N/A';
+  </script>
+</body>
+</html>
